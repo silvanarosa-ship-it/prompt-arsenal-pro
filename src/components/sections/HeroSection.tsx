@@ -25,7 +25,7 @@ const HeroSection = () => {
           fill="hsl(200 80% 60%)"
         />
         
-        <div className="container relative z-10 px-4 md:px-6 py-20 min-h-screen flex items-center">
+        <div className="container relative z-10 px-4 md:px-6 pt-20 pb-20 lg:pb-0 min-h-screen flex items-center">
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 w-full">
             
             {/* Left content */}
@@ -92,16 +92,18 @@ const HeroSection = () => {
             </div>
             
             {/* Right content - 3D-like visual */}
-            <div className="flex-1 relative h-[420px] md:h-[560px] lg:h-[680px] w-full flex items-center justify-center overflow-visible">
+            <div className="flex-1 relative h-[420px] md:h-[560px] lg:h-[calc(100vh-5rem)] w-full overflow-visible">
               {/* Animated orbs */}
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />
-              
-              <div 
-                className="absolute z-10 right-[-60px] md:right-[-140px] lg:right-[-220px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[720px] md:h-[720px] lg:w-[880px] lg:h-[880px] animate-fade-up opacity-0"
-                style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
-              >
-                <Robo3D className="w-full h-full" />
+
+              <div className="absolute inset-0 flex items-end justify-end overflow-visible">
+                <div
+                  className="relative z-30 -mr-[60px] md:-mr-[140px] lg:-mr-[220px] h-[520px] w-[520px] md:h-[720px] md:w-[720px] lg:h-full lg:w-[min(48vw,900px)] animate-fade-up opacity-0"
+                  style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
+                >
+                  <Robo3D className="w-full h-full" />
+                </div>
               </div>
             </div>
           </div>
@@ -109,7 +111,7 @@ const HeroSection = () => {
       </Card>
       
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10" />
     </section>
   );
 };

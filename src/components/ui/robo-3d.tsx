@@ -1,5 +1,4 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
-import type { Application, SPEObject } from "@splinetool/runtime";
 
 const Spline = lazy(() => import("@splinetool/react-spline"));
 
@@ -15,12 +14,7 @@ export function Robo3D({
   scene = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode",
 }: Robo3DProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const targetRef = useRef({ x: 0, y: 0 });
-  const currentRef = useRef({ x: 0, y: 0 });
-  const headObjectRef = useRef<SPEObject | null>(null);
-  const headBaseRotationRef = useRef<{ x: number; y: number; z: number } | null>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const splineRef = useRef<any>(null);
   const [status, setStatus] = useState<Status>("carregando");
 
   const ariaLabel = useMemo(() => {
@@ -31,96 +25,143 @@ export function Robo3D({
 
   useEffect(() => {
     setStatus("carregando");
-    headObjectRef.current = null;
-    headBaseRotationRef.current = null;
     const timeoutId = window.setTimeout(() => {
       setStatus((current) => (current === "carregando" ? "erro" : current));
     }, 20000);
     return () => window.clearTimeout(timeoutId);
   }, [scene]);
 
+  // Função para aplicar rotação diretamente
+  const applyRotation = (x: number, y: number) => {
+    const spline = splineRef.current;
+    if (!spline) return;
+
+    // Cache dos objetos
+    if (!spline._cached) {
+      const allObjects = spline.getAllObjects?.() || [];
+      
+      spline._cached = {
+        head: spline.findObjectByName("Head") || 
+              spline.findObjectByName("Cabeça") ||
+              spline.findObjectByName("head") ||
+              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("head") || obj.name?.toLowerCase().includes("cabeça")),
+        
+        body: spline.findObjectByName("Body") || 
+              spline.findObjectByName("Corpo") ||
+              spline.findObjectByName("body") ||
+              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("body") || obj.name?.toLowerCase().includes("corpo")),
+        
+        neck: spline.findObjectByName("Neck") || 
+              spline.findObjectByName("Pescoço") ||
+              spline.findObjectByName("neck") ||
+              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("neck") || obj.name?.toLowerCase().includes("pescoço")),
+        
+        // Tenta encontrar o grupo raiz do robô
+        root: allObjects.find((obj: any) => 
+          obj.name?.toLowerCase().includes("robot") || 
+          obj.name?.toLowerCase().includes("robo") ||
+          obj.name?.toLowerCase().includes("character")
+        )
+      };
+    }
+
+    const { head, body, neck, root } = spline._cached;
+
+    // MOVIMENTO HORIZONTAL (esquerda/direita) - já está bom
+    if (head) {
+      head.rotation.y = x * 0.7; // Movimento horizontal da cabeça
+    }
+
+    if (neck) {
+      neck.rotation.y = x * 0.4; // Pescoço acompanha
+    }
+
+    if (body) {
+      body.rotation.y = x * 0.25; // Corpo sutil
+    }
+
+    // MOVIMENTO VERTICAL (cima/baixo) - TURBINADO
+    if (head) {
+      // Aumentei MUITO o multiplicador vertical
+      head.rotation.x = y * 0.8;
+      // Adiciona rotação Z para dar mais dinamismo diagonal
+      head.rotation.z = x * y * 0.15;
+    }
+
+    if (neck) {
+      neck.rotation.x = y * 0.5;
+    }
+
+    if (body) {
+      body.rotation.x = y * 0.15;
+    }
+
+    // Se tiver grupo raiz, aplica rotação global também
+    if (root && root !== head && root !== body) {
+      root.rotation.y = x * 0.1;
+      root.rotation.x = y * 0.1;
+    }
+  };
+
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    // Pre-calcula rect
+    let cachedRect = container.getBoundingClientRect();
+    
+    const updateRect = () => {
+      cachedRect = container.getBoundingClientRect();
+    };
+    
+    const resizeObserver = new ResizeObserver(updateRect);
+    resizeObserver.observe(container);
+
+    const clamp = (value: number, min: number, max: number) => 
+      Math.min(max, Math.max(min, value));
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (cachedRect.width <= 0 || cachedRect.height <= 0) return;
+      
+      const x = clamp((event.clientX - cachedRect.left) / cachedRect.width, 0, 1);
+      const y = clamp((event.clientY - cachedRect.top) / cachedRect.height, 0, 1);
+      
+      // Aplica IMEDIATAMENTE
+      applyRotation((x - 0.5) * 2, -(y - 0.5) * 2);
+    };
+
+    const onPointerLeave = () => {
+      applyRotation(0, 0);
+    };
+
+    container.addEventListener("pointermove", onPointerMove);
+    container.addEventListener("pointerleave", onPointerLeave);
+
     return () => {
-      if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
+      container.removeEventListener("pointermove", onPointerMove);
+      container.removeEventListener("pointerleave", onPointerLeave);
+      resizeObserver.disconnect();
     };
   }, []);
 
-  const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
-
-  const pickHeadObject = (spline: Application): SPEObject | null => {
-    const objects = spline.getAllObjects();
-    const headMatchers = ["head", "cabeca", "cabeça", "neck"]; 
-    const preferred = objects.find((obj) => headMatchers.some((m) => obj.name.toLowerCase().includes(m)));
-    if (preferred) return preferred;
-
-    const fallbackMatchers = ["robot", "robo", "bot"]; 
-    const fallback = objects.find((obj) => fallbackMatchers.some((m) => obj.name.toLowerCase().includes(m)));
-    return fallback ?? null;
-  };
-
-  const applyHeadLook = (x: number, y: number) => {
-    const head = headObjectRef.current;
-    const base = headBaseRotationRef.current;
-    if (!head || !base) return;
-
-    const maxYaw = 0.45;
-    const maxPitch = 0.25;
-    const desiredX = base.x + y * -maxPitch;
-    const desiredY = base.y + x * maxYaw;
-    const t = 0.18;
-
-    head.rotation.x = lerp(head.rotation.x, desiredX, t);
-    head.rotation.y = lerp(head.rotation.y, desiredY, t);
-  };
-
-  const scheduleUpdate = () => {
-    if (rafRef.current) return;
-    rafRef.current = window.requestAnimationFrame(() => {
-      rafRef.current = null;
-      const smoothing = 0.12;
-      const next = {
-        x: lerp(currentRef.current.x, targetRef.current.x, smoothing),
-        y: lerp(currentRef.current.y, targetRef.current.y, smoothing),
-      };
-      currentRef.current = next;
-      setTilt(next);
-      applyHeadLook(next.x, next.y);
-
-      const dx = Math.abs(next.x - targetRef.current.x);
-      const dy = Math.abs(next.y - targetRef.current.y);
-      if (dx > 0.001 || dy > 0.001) scheduleUpdate();
-    });
-  };
-
-  const onMouseMove: React.MouseEventHandler<HTMLDivElement> = (event) => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    const x = Math.max(-1, Math.min(1, (px - 0.5) * 2));
-    const y = Math.max(-1, Math.min(1, (py - 0.5) * 2));
-
-    targetRef.current = { x, y };
-    scheduleUpdate();
-  };
-
-  const onMouseLeave = () => {
-    targetRef.current = { x: 0, y: 0 };
-    scheduleUpdate();
-  };
-
-  const transform = useMemo(() => {
-    const translateX = tilt.x * 18;
-    const translateY = tilt.y * 10;
-    const rotateX = tilt.y * -7;
-    const rotateY = tilt.x * 10;
-    return `translate3d(${translateX}px, ${translateY}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-  }, [tilt.x, tilt.y]);
+  const splineStyle = useMemo(() => {
+    const scale = 0.84;
+    return {
+      width: "150%",
+      height: "150%",
+      position: "absolute" as const,
+      left: "50%",
+      top: "58%",
+      transform: `translate3d(-50%, -50%, 0) scale(${scale})`,
+      transformOrigin: "center",
+    };
+  }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full" aria-label={ariaLabel} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+    <div ref={containerRef} className="relative w-full h-full overflow-visible" aria-label={ariaLabel}>
       {status !== "pronto" ? (
         <div className="absolute inset-0 grid place-items-center">
           {status === "carregando" ? (
@@ -134,15 +175,22 @@ export function Robo3D({
         </div>
       ) : null}
 
-      <div className={className} style={{ width: "100%", height: "100%", transform, transformStyle: "preserve-3d", transition: "transform 120ms ease-out" }}>
+      <div className={className} style={{ width: "100%", height: "100%", position: "relative" }}>
         <Suspense fallback={null}>
           <Spline
             scene={scene}
+            style={splineStyle}
             onLoad={(spline) => {
+              splineRef.current = spline;
               setStatus("pronto");
-              const head = pickHeadObject(spline);
-              headObjectRef.current = head;
-              headBaseRotationRef.current = head ? { ...head.rotation } : null;
+              spline.setGlobalEvents(true);
+              
+              // Debug detalhado
+              const allObjects = spline.getAllObjects?.() || [];
+              console.log("🤖 Todos os objetos do Spline:", allObjects.map((obj: any) => ({
+                name: obj.name,
+                type: obj.type
+              })));
             }}
           />
         </Suspense>

@@ -5,10 +5,10 @@ const plans = [
   {
     name: "START",
     subtitle: "SOB MEDIDA",
-    price: "19,90",
+    price: "9,90",
     features: [
-      "Escolhe 10 prompts",
-      "Escolhe as categorias",
+      "Acesso a 100 prompts",
+      "Escolhe até 2 categorias",
       "Entrega imediata",
       "Ideal para testar"
     ],
@@ -18,7 +18,7 @@ const plans = [
   {
     name: "ABSOLUTO",
     subtitle: "ACESSO COMPLETO",
-    price: "49,90",
+    price: "29,90",
     originalPrice: "297",
     features: [
       "Acesso aos 1.500 prompts",
@@ -33,10 +33,10 @@ const plans = [
   {
     name: "PRO",
     subtitle: "CONTROLE TOTAL",
-    price: "39,90",
+    price: "19,90",
     features: [
-      "Escolhe 100 prompts",
-      "Liberdade de categorias",
+      "Acesso a 500 prompts",
+      "Escolha até 10 categorias",
       "Ideal para criar e vender",
       "Entrega imediata"
     ],
