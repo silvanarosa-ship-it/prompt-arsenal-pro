@@ -92,14 +92,14 @@ const HeroSection = () => {
             </div>
             
             {/* Right content - 3D-like visual */}
-            <div className="flex-1 relative h-[420px] md:h-[560px] lg:h-[calc(100vh-5rem)] w-full overflow-visible">
+            <div className="flex-1 relative mt-12 lg:mt-0 h-[420px] md:h-[560px] lg:h-[calc(100vh-5rem)] w-full overflow-hidden lg:overflow-visible">
               {/* Animated orbs */}
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />
 
-              <div className="absolute inset-0 flex items-end justify-end overflow-visible">
+              <div className="absolute inset-0 flex items-end justify-end overflow-hidden lg:overflow-visible">
                 <div
-                  className="relative z-30 -mr-[60px] md:-mr-[140px] lg:-mr-[220px] h-[520px] w-[520px] md:h-[720px] md:w-[720px] lg:h-full lg:w-[min(48vw,900px)] animate-fade-up opacity-0"
+                  className="relative z-30 mr-0 sm:-mr-[60px] md:-mr-[140px] lg:-mr-[220px] h-[420px] w-[420px] sm:h-[520px] sm:w-[520px] md:h-[720px] md:w-[720px] lg:h-full lg:w-[min(48vw,900px)] animate-fade-up opacity-0"
                   style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
                 >
                   <Robo3D className="w-full h-full" />
