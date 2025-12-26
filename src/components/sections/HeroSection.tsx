@@ -87,35 +87,16 @@ const HeroSection = () => {
             </div>
             
             {/* Right content - 3D-like visual */}
-            <div className="flex-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full flex items-center justify-center">
+            <div className="flex-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full flex items-center justify-center overflow-visible">
               {/* Animated orbs */}
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />
               
               <div 
-                className="relative z-10 w-full max-w-xl h-full animate-fade-up opacity-0"
+                className="absolute z-10 right-[-40px] md:right-[-80px] lg:right-[-120px] top-1/2 -translate-y-1/2 w-[420px] h-[420px] md:w-[560px] md:h-[560px] lg:w-[700px] lg:h-[700px] animate-fade-up opacity-0"
                 style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
               >
-                <Card className="w-full h-full bg-black/[0.96] relative overflow-hidden border-primary/20">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10" />
-
-                  <div className="relative h-full flex flex-col">
-                    <div className="flex-1 min-h-0">
-                      <Robo3D className="w-full h-full" />
-                    </div>
-
-                    <div className="p-6 pt-4 flex items-center justify-between gap-4">
-                      <div className="text-left">
-                        <p className="text-sm font-semibold text-foreground">Robô IA em 3D</p>
-                        <p className="text-xs text-muted-foreground">Um preview visual do que você vai destravar</p>
-                      </div>
-
-                      <div className="px-4 py-2 rounded-full bg-gradient-primary text-primary-foreground text-sm font-semibold shadow-glow whitespace-nowrap">
-                        1.500+ Prompts
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                <Robo3D className="w-full h-full" />
               </div>
             </div>
           </div>

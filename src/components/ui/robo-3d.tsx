@@ -1,45 +1,75 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+
+const Spline = lazy(() => import("@splinetool/react-spline"));
 
 type Robo3DProps = {
   className?: string;
-  src?: string;
-  alt?: string;
+  scene?: string;
 };
 
 type Status = "carregando" | "pronto" | "erro";
 
 export function Robo3D({
   className,
-  src = "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
-  alt = "Robô 3D",
+  scene = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode",
 }: Robo3DProps) {
-  const viewerRef = useRef<HTMLElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const targetRef = useRef({ x: 0, y: 0 });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [status, setStatus] = useState<Status>("carregando");
 
   const ariaLabel = useMemo(() => {
     if (status === "carregando") return "Carregando robô 3D";
     if (status === "erro") return "Falha ao carregar robô 3D";
-    return alt;
-  }, [alt, status]);
+    return "Robô 3D";
+  }, [status]);
 
   useEffect(() => {
-    const el = viewerRef.current;
+    setStatus("carregando");
+    const timeoutId = window.setTimeout(() => {
+      setStatus((current) => (current === "carregando" ? "erro" : current));
+    }, 20000);
+    return () => window.clearTimeout(timeoutId);
+  }, [scene]);
+
+  const scheduleUpdate = () => {
+    if (rafRef.current) return;
+    rafRef.current = window.requestAnimationFrame(() => {
+      rafRef.current = null;
+      setTilt(targetRef.current);
+    });
+  };
+
+  const onMouseMove: React.MouseEventHandler<HTMLDivElement> = (event) => {
+    const el = containerRef.current;
     if (!el) return;
 
-    const onLoad = () => setStatus("pronto");
-    const onError = () => setStatus("erro");
+    const rect = el.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width;
+    const py = (event.clientY - rect.top) / rect.height;
+    const x = Math.max(-1, Math.min(1, (px - 0.5) * 2));
+    const y = Math.max(-1, Math.min(1, (py - 0.5) * 2));
 
-    el.addEventListener("load", onLoad);
-    el.addEventListener("error", onError);
+    targetRef.current = { x, y };
+    scheduleUpdate();
+  };
 
-    return () => {
-      el.removeEventListener("load", onLoad);
-      el.removeEventListener("error", onError);
-    };
-  }, [src]);
+  const onMouseLeave = () => {
+    targetRef.current = { x: 0, y: 0 };
+    scheduleUpdate();
+  };
+
+  const transform = useMemo(() => {
+    const translateX = tilt.x * 18;
+    const translateY = tilt.y * 10;
+    const rotateX = tilt.y * -7;
+    const rotateY = tilt.x * 10;
+    return `translate3d(${translateX}px, ${translateY}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  }, [tilt.x, tilt.y]);
 
   return (
-    <div className={"relative w-full h-full"} aria-label={ariaLabel}>
+    <div ref={containerRef} className="relative w-full h-full" aria-label={ariaLabel} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
       {status !== "pronto" ? (
         <div className="absolute inset-0 grid place-items-center">
           {status === "carregando" ? (
@@ -53,26 +83,11 @@ export function Robo3D({
         </div>
       ) : null}
 
-      <model-viewer
-        ref={(node) => {
-          viewerRef.current = node as unknown as HTMLElement | null;
-        }}
-        className={className}
-        src={src}
-        alt={alt}
-        autoplay
-        auto-rotate
-        rotation-per-second="10deg"
-        shadow-intensity="0"
-        environment-image="neutral"
-        interaction-prompt="none"
-        loading="eager"
-        exposure="1"
-        camera-orbit="0deg 75deg 2.6m"
-        field-of-view="30deg"
-        disable-zoom
-        style={{ width: "100%", height: "100%" }}
-      />
+      <div className={className} style={{ width: "100%", height: "100%", transform, transformStyle: "preserve-3d", transition: "transform 120ms ease-out" }}>
+        <Suspense fallback={null}>
+          <Spline scene={scene} onLoad={() => setStatus("pronto")} />
+        </Suspense>
+      </div>
     </div>
   );
 }
