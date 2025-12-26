@@ -55,6 +55,12 @@ const HeroSection = () => {
               >
                 Mais de 1.500 prompts estratégicos de marketing, vendas, conteúdo e produtividade — criados para o mercado brasileiro.
               </p>
+
+              <div className="lg:hidden w-full flex justify-center animate-fade-up opacity-0" style={{ animationDelay: "0.35s", animationFillMode: "forwards" }}>
+                <div className="relative h-[300px] w-[300px] sm:h-[340px] sm:w-[340px]">
+                  <Robo3D className="w-full h-full" />
+                </div>
+              </div>
               
               {/* CTA */}
               <div 
@@ -92,7 +98,7 @@ const HeroSection = () => {
             </div>
             
             {/* Right content - 3D-like visual */}
-            <div className="flex-1 relative mt-10 lg:mt-0 h-[360px] sm:h-[420px] md:h-[560px] lg:h-[calc(100vh-5rem)] w-full overflow-hidden lg:overflow-visible">
+            <div className="hidden lg:block flex-1 relative mt-10 lg:mt-0 h-[360px] sm:h-[420px] md:h-[560px] lg:h-[calc(100vh-5rem)] w-full overflow-hidden lg:overflow-visible">
               {/* Animated orbs */}
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />

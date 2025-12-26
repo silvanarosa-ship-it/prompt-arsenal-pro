@@ -138,8 +138,12 @@ export function Robo3D({
       cachedRect = container.getBoundingClientRect();
     };
     
-    const resizeObserver = new ResizeObserver(updateRect);
-    resizeObserver.observe(container);
+    const supportsResizeObserver = typeof ResizeObserver !== "undefined";
+    const resizeObserver = supportsResizeObserver ? new ResizeObserver(updateRect) : null;
+    resizeObserver?.observe(container);
+    if (!supportsResizeObserver) {
+      window.addEventListener("resize", updateRect);
+    }
 
     const clamp = (value: number, min: number, max: number) => 
       Math.min(max, Math.max(min, value));
@@ -164,7 +168,10 @@ export function Robo3D({
     return () => {
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerleave", onPointerLeave);
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
+      if (!supportsResizeObserver) {
+        window.removeEventListener("resize", updateRect);
+      }
     };
   }, []);
 
