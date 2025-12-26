@@ -2,6 +2,27 @@ import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 
 const Spline = lazy(() => import("@splinetool/react-spline"));
 
+type SplineObject = {
+  name?: string;
+  type?: string;
+  rotation?: {
+    x: number;
+    y: number;
+    z: number;
+  };
+};
+
+type SplineInstance = {
+  getAllObjects?: () => SplineObject[];
+  findObjectByName: (name: string) => SplineObject | null | undefined;
+  _cached?: {
+    head?: SplineObject | null;
+    body?: SplineObject | null;
+    neck?: SplineObject | null;
+    root?: SplineObject | null;
+  };
+};
+
 type Robo3DProps = {
   className?: string;
   scene?: string;
@@ -14,7 +35,7 @@ export function Robo3D({
   scene = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode",
 }: Robo3DProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const splineRef = useRef<any>(null);
+  const splineRef = useRef<SplineInstance | null>(null);
   const [status, setStatus] = useState<Status>("carregando");
 
   const ariaLabel = useMemo(() => {
@@ -44,20 +65,20 @@ export function Robo3D({
         head: spline.findObjectByName("Head") || 
               spline.findObjectByName("Cabeça") ||
               spline.findObjectByName("head") ||
-              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("head") || obj.name?.toLowerCase().includes("cabeça")),
+              allObjects.find((obj) => obj.name?.toLowerCase().includes("head") || obj.name?.toLowerCase().includes("cabeça")),
         
         body: spline.findObjectByName("Body") || 
               spline.findObjectByName("Corpo") ||
               spline.findObjectByName("body") ||
-              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("body") || obj.name?.toLowerCase().includes("corpo")),
+              allObjects.find((obj) => obj.name?.toLowerCase().includes("body") || obj.name?.toLowerCase().includes("corpo")),
         
         neck: spline.findObjectByName("Neck") || 
               spline.findObjectByName("Pescoço") ||
               spline.findObjectByName("neck") ||
-              allObjects.find((obj: any) => obj.name?.toLowerCase().includes("neck") || obj.name?.toLowerCase().includes("pescoço")),
+              allObjects.find((obj) => obj.name?.toLowerCase().includes("neck") || obj.name?.toLowerCase().includes("pescoço")),
         
         // Tenta encontrar o grupo raiz do robô
-        root: allObjects.find((obj: any) => 
+        root: allObjects.find((obj) => 
           obj.name?.toLowerCase().includes("robot") || 
           obj.name?.toLowerCase().includes("robo") ||
           obj.name?.toLowerCase().includes("character")
@@ -68,36 +89,36 @@ export function Robo3D({
     const { head, body, neck, root } = spline._cached;
 
     // MOVIMENTO HORIZONTAL (esquerda/direita) - já está bom
-    if (head) {
+    if (head?.rotation) {
       head.rotation.y = x * 0.7; // Movimento horizontal da cabeça
     }
 
-    if (neck) {
+    if (neck?.rotation) {
       neck.rotation.y = x * 0.4; // Pescoço acompanha
     }
 
-    if (body) {
+    if (body?.rotation) {
       body.rotation.y = x * 0.25; // Corpo sutil
     }
 
     // MOVIMENTO VERTICAL (cima/baixo) - TURBINADO E CORRIGIDO
-    if (head) {
+    if (head?.rotation) {
       // INVERTIDO: mouse pra cima = cabeça pra cima (valor negativo)
       head.rotation.x = -y * 0.8;
       // Adiciona rotação Z para dar mais dinamismo diagonal
       head.rotation.z = x * y * 0.15;
     }
 
-    if (neck) {
+    if (neck?.rotation) {
       neck.rotation.x = -y * 0.5;
     }
 
-    if (body) {
+    if (body?.rotation) {
       body.rotation.x = -y * 0.15;
     }
 
     // Se tiver grupo raiz, aplica rotação global também
-    if (root && root !== head && root !== body) {
+    if (root?.rotation && root !== head && root !== body) {
       root.rotation.y = x * 0.1;
       root.rotation.x = -y * 0.1;
     }
@@ -183,7 +204,7 @@ export function Robo3D({
           <Spline
             scene={scene}
             style={splineStyle}
-            onLoad={(spline) => {
+            onLoad={(spline: SplineInstance) => {
               splineRef.current = spline;
               setStatus("pronto");
             }}
