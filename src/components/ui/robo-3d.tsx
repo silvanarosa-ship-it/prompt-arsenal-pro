@@ -80,26 +80,26 @@ export function Robo3D({
       body.rotation.y = x * 0.25; // Corpo sutil
     }
 
-    // MOVIMENTO VERTICAL (cima/baixo) - TURBINADO
+    // MOVIMENTO VERTICAL (cima/baixo) - TURBINADO E CORRIGIDO
     if (head) {
-      // Aumentei MUITO o multiplicador vertical
-      head.rotation.x = y * 0.8;
+      // INVERTIDO: mouse pra cima = cabeça pra cima (valor negativo)
+      head.rotation.x = -y * 0.8;
       // Adiciona rotação Z para dar mais dinamismo diagonal
       head.rotation.z = x * y * 0.15;
     }
 
     if (neck) {
-      neck.rotation.x = y * 0.5;
+      neck.rotation.x = -y * 0.5;
     }
 
     if (body) {
-      body.rotation.x = y * 0.15;
+      body.rotation.x = -y * 0.15;
     }
 
     // Se tiver grupo raiz, aplica rotação global também
     if (root && root !== head && root !== body) {
       root.rotation.y = x * 0.1;
-      root.rotation.x = y * 0.1;
+      root.rotation.x = -y * 0.1;
     }
   };
 
@@ -157,6 +157,9 @@ export function Robo3D({
       top: "58%",
       transform: `translate3d(-50%, -50%, 0) scale(${scale})`,
       transformOrigin: "center",
+      // Remove qualquer transição CSS que possa causar delay
+      transition: "none",
+      opacity: 1,
     };
   }, []);
 
@@ -183,14 +186,26 @@ export function Robo3D({
             onLoad={(spline) => {
               splineRef.current = spline;
               setStatus("pronto");
-              spline.setGlobalEvents(true);
               
-              // Debug detalhado
-              const allObjects = spline.getAllObjects?.() || [];
-              console.log("🤖 Todos os objetos do Spline:", allObjects.map((obj: any) => ({
-                name: obj.name,
-                type: obj.type
-              })));
+              // DESABILITA animações automáticas para entrada instantânea
+              try {
+                spline.stop(); // Para qualquer animação rodando
+                const allObjects = spline.getAllObjects?.() || [];
+                
+                // Remove delays de animação
+                allObjects.forEach((obj: any) => {
+                  if (obj.emitEvent) {
+                    obj.emitEvent('mouseHover', { target: obj });
+                  }
+                });
+                
+                console.log("🤖 Todos os objetos do Spline:", allObjects.map((obj: any) => ({
+                  name: obj.name,
+                  type: obj.type
+                })));
+              } catch (e) {
+                console.log("Spline carregado (sem controle de animações)");
+              }
             }}
           />
         </Suspense>
