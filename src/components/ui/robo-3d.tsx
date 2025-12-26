@@ -186,26 +186,6 @@ export function Robo3D({
             onLoad={(spline) => {
               splineRef.current = spline;
               setStatus("pronto");
-              
-              // DESABILITA animações automáticas para entrada instantânea
-              try {
-                spline.stop(); // Para qualquer animação rodando
-                const allObjects = spline.getAllObjects?.() || [];
-                
-                // Remove delays de animação
-                allObjects.forEach((obj: any) => {
-                  if (obj.emitEvent) {
-                    obj.emitEvent('mouseHover', { target: obj });
-                  }
-                });
-                
-                console.log("🤖 Todos os objetos do Spline:", allObjects.map((obj: any) => ({
-                  name: obj.name,
-                  type: obj.type
-                })));
-              } catch (e) {
-                console.log("Spline carregado (sem controle de animações)");
-              }
             }}
           />
         </Suspense>
