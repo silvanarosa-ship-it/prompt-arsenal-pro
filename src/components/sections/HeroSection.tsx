@@ -1,6 +1,7 @@
-import { ArrowRight, Sparkles, Bot, Cpu, Zap } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Robo3D } from "@/components/ui/robo-3d";
 import { Spotlight } from "@/components/ui/spotlight";
 
 const HeroSection = () => {
@@ -91,46 +92,30 @@ const HeroSection = () => {
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />
               
-              {/* Central AI Bot visual */}
               <div 
-                className="relative z-10 animate-fade-up opacity-0"
+                className="relative z-10 w-full max-w-xl h-full animate-fade-up opacity-0"
                 style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
               >
-                {/* Outer ring */}
-                <div className="absolute inset-0 -m-8 rounded-full border border-primary/20 animate-[spin_20s_linear_infinite]" />
-                <div className="absolute inset-0 -m-16 rounded-full border border-primary/10 animate-[spin_30s_linear_infinite_reverse]" />
-                <div className="absolute inset-0 -m-24 rounded-full border border-primary/5 animate-[spin_40s_linear_infinite]" />
-                
-                {/* Main container */}
-                <div className="relative p-8 md:p-12 rounded-3xl bg-card/80 backdrop-blur-xl border border-primary/20 shadow-premium">
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10" />
-                  
-                  {/* Icon grid */}
-                  <div className="relative grid grid-cols-2 gap-6 md:gap-8">
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-colors group">
-                      <Bot className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:scale-110 transition-transform" />
-                      <span className="text-xs md:text-sm font-medium text-center">IA Estratégica</span>
+                <Card className="w-full h-full bg-black/[0.96] relative overflow-hidden border-primary/20">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10" />
+
+                  <div className="relative h-full flex flex-col">
+                    <div className="flex-1 min-h-0">
+                      <Robo3D className="w-full h-full" />
                     </div>
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-colors group">
-                      <Cpu className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:scale-110 transition-transform" />
-                      <span className="text-xs md:text-sm font-medium text-center">Automação</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-colors group">
-                      <Zap className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:scale-110 transition-transform" />
-                      <span className="text-xs md:text-sm font-medium text-center">Produtividade</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-colors group">
-                      <Sparkles className="w-10 h-10 md:w-12 md:h-12 text-primary group-hover:scale-110 transition-transform" />
-                      <span className="text-xs md:text-sm font-medium text-center">Criatividade</span>
+
+                    <div className="p-6 pt-4 flex items-center justify-between gap-4">
+                      <div className="text-left">
+                        <p className="text-sm font-semibold text-foreground">Robô IA em 3D</p>
+                        <p className="text-xs text-muted-foreground">Um preview visual do que você vai destravar</p>
+                      </div>
+
+                      <div className="px-4 py-2 rounded-full bg-gradient-primary text-primary-foreground text-sm font-semibold shadow-glow whitespace-nowrap">
+                        1.500+ Prompts
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Floating badge */}
-                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-gradient-primary text-primary-foreground text-sm font-semibold shadow-glow whitespace-nowrap">
-                    1.500+ Prompts
-                  </div>
-                </div>
+                </Card>
               </div>
             </div>
           </div>
