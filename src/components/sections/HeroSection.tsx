@@ -14,10 +14,15 @@ const HeroSection = () => {
       {/* Background effects */}
       <div className="absolute inset-0 bg-background" />
       
-      <Card className="w-full min-h-screen rounded-none border-0 bg-card/50 backdrop-blur-sm relative overflow-hidden">
+      <Card className="w-full min-h-screen rounded-none border-0 bg-card/50 backdrop-blur-sm relative overflow-visible">
         <Spotlight
           className="-top-40 left-0 md:left-60 md:-top-20"
           fill="hsl(265 85% 65%)"
+        />
+
+        <Spotlight
+          className="top-0 right-0 -mt-20 -mr-20"
+          fill="hsl(200 80% 60%)"
         />
         
         <div className="container relative z-10 px-4 md:px-6 py-20 min-h-screen flex items-center">
@@ -87,13 +92,13 @@ const HeroSection = () => {
             </div>
             
             {/* Right content - 3D-like visual */}
-            <div className="flex-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full flex items-center justify-center overflow-visible">
+            <div className="flex-1 relative h-[420px] md:h-[560px] lg:h-[680px] w-full flex items-center justify-center overflow-visible">
               {/* Animated orbs */}
               <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 blur-3xl animate-float" />
               <div className="absolute w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-blue-500/20 via-primary/20 to-pink-500/20 blur-3xl animate-float delay-300" style={{ animationDelay: "1s" }} />
               
               <div 
-                className="absolute z-10 right-[-40px] md:right-[-80px] lg:right-[-120px] top-1/2 -translate-y-1/2 w-[420px] h-[420px] md:w-[560px] md:h-[560px] lg:w-[700px] lg:h-[700px] animate-fade-up opacity-0"
+                className="absolute z-10 right-[-60px] md:right-[-140px] lg:right-[-220px] top-1/2 -translate-y-1/2 w-[520px] h-[520px] md:w-[720px] md:h-[720px] lg:w-[880px] lg:h-[880px] animate-fade-up opacity-0"
                 style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
               >
                 <Robo3D className="w-full h-full" />
